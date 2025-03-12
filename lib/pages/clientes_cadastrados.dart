@@ -2,13 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'editar_cliente.dart';
 
-class ClientesCadastrados extends StatelessWidget {
+class ClientesCadastrados extends StatefulWidget {
   const ClientesCadastrados({super.key});
+
+  @override
+  ClientesCadastradosState createState() => ClientesCadastradosState();
+}
+
+class ClientesCadastradosState extends State<ClientesCadastrados> {
+  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Clientes Cadastrados')),
+      appBar: AppBar(
+        title: const Text('Clientes'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Pesquisar...',
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('usuarios').snapshots(),
         builder: (context, snapshot) {
@@ -20,7 +49,11 @@ class ClientesCadastrados extends StatelessWidget {
             return const Center(child: Text('Nenhum cliente cadastrado.'));
           }
 
-          final clientes = snapshot.data!.docs;
+          final clientes = snapshot.data!.docs.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final nome = data['nome']?.toLowerCase() ?? '';
+            return nome.contains(searchQuery);
+          }).toList();
 
           return ListView.builder(
             itemCount: clientes.length,

@@ -51,10 +51,12 @@ void salvarEdicao() async {
     'estado': estadoController.text,
   });
 
-  Navigator.pop(context);
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Cliente atualizado com sucesso!')),
-  );
+  if (mounted) {
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cliente atualizado com sucesso!')),
+    );
+  }
 }
 
 
@@ -77,7 +79,7 @@ void salvarEdicao() async {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: salvarEdicao,
-              child: const Text('Salvar Alterações'),
+              child: const Text('Salvar'),
             ),
           ],
         ),

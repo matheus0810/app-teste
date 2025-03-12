@@ -61,20 +61,24 @@ class _CadastroClienteState extends State<CadastroCliente> {
       cidadeController.clear();
       estadoController.clear();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cliente cadastrado com sucesso!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preencha todos os campos obrigatórios')),
-      );
-    }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cliente cadastrado com sucesso!')),
+        );
+      }
+        } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Preencha todos os campos obrigatórios')),
+        );
+      }
+        }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro de Cliente')),
+      appBar: AppBar(title: const Text('Cadastro')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
