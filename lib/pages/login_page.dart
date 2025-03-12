@@ -6,43 +6,60 @@ import 'home_page.dart';
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
-  Future<void> loginComGoogle(BuildContext context) async {
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId: "14548167982-qlr5qdkatp91dq5841209d9s0ba080l1.apps.googleusercontent.com", 
-      );
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+Future<void> loginComGoogle() async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-      if (googleAuth == null) return;
+    if (googleAuth == null) return;
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao fazer login: ${e.toString()}')),
-      );
+    final UserCredential userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+    final User? user = userCredential.user;
+
+    if (user != null) {
+      print("Nome: ${user.displayName}");
+      print("Email: ${user.email}");
+      print("Foto de Perfil: ${user.photoURL}");
     }
+  } catch (e) {
+    print("Erro ao fazer login: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('')),
       body: Center(
+       
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             GestureDetector(
-              onTap: () => loginComGoogle(context),
+              onTap: () => loginComGoogle(),
+              child: Container(
+                padding: const EdgeInsets.all(80),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/povo_ninja.jpg', height: 200,),
+
+                  ],
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => loginComGoogle(),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
