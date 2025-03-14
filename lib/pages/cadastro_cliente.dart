@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import '/widgets/custom_scaffold.dart';
 
 class CadastroCliente extends StatefulWidget {
   const CadastroCliente({super.key});
@@ -77,8 +78,8 @@ class _CadastroClienteState extends State<CadastroCliente> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro')),
+    return CustomScaffold(
+      title: 'Cadastro Cliente',
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

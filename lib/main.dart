@@ -50,6 +50,7 @@ class MyApp extends StatelessWidget {
         },
         '/cadastrar_vaga': (context) => const CadastroVaga(),
         '/lista_vagas': (context) => const ListaVagas(),
+        '/home': (context) => const HomePage(),
       },
     );
   }

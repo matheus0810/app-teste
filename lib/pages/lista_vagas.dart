@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '/pages/detalhes_vaga_screen.dart';
-
+import '/widgets/custom_scaffold.dart';
 
 class ListaVagas extends StatelessWidget {
   const ListaVagas({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Vagas')),
+    return CustomScaffold(
+      title: 'Vagas',
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('vagas').snapshots(),
         builder: (context, snapshot) {
