@@ -15,9 +15,10 @@ dependencies:
   cloud_firestore: ^4.15.2
   flutter_masked_text2: ^0.9.1
   image_picker: ^1.0.7
-  share_plus: ^8.0.3
+  share_plus: ^7.2.1
   cached_network_image: ^3.3.1
-  path_provider: ^2.1.5
+  screenshot: ^3.0.0 # Update to the latest compatible version
+  path_provider: ^2.1.1
   permission_handler: ^11.0.1
   font_awesome_flutter: ^10.7.0
   firebase_auth: ^4.17.2

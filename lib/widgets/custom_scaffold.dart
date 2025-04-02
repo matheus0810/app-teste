@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomScaffold extends StatelessWidget {
   final Widget body;
   final String title;
+  final Widget? floatingActionButton; // Adicionado o parâmetro
 
   const CustomScaffold({
     Key? key,
     required this.body,
     required this.title,
+    this.floatingActionButton, // Adicionado o parâmetro
   }) : super(key: key);
 
   @override
@@ -108,6 +110,7 @@ class CustomScaffold extends StatelessWidget {
         ),
       ),
       body: body,
+      floatingActionButton: floatingActionButton, // Adicionado aqui
     );
   }
 }

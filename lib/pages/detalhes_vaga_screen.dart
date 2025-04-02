@@ -1,11 +1,80 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '/widgets/custom_scaffold.dart';
 
-class DetalhesVagaScreen extends StatelessWidget {
+class DetalhesVagaScreen extends StatefulWidget {
   final Map<String, dynamic> data;
 
   const DetalhesVagaScreen({super.key, required this.data});
+
+  @override
+  _DetalhesVagaScreenState createState() => _DetalhesVagaScreenState();
+}
+
+class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
+  final ScreenshotController screenshotController = ScreenshotController();
+
+  Future<void> _captureAndShare() async {
+    Uint8List? image = await screenshotController.capture(pixelRatio: 2.0);
+    if (image == null) return;
+
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = File('${directory.path}/vaga_screenshot.png');
+    await imagePath.writeAsBytes(image);
+
+    await Share.shareFiles([imagePath.path],
+        text: "Confira esta oportunidade!");
+  }
+
+  Future<void> _captureAndSave() async {
+    Uint8List? image = await screenshotController.capture(pixelRatio: 2.0);
+    if (image == null) return;
+
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = File('${directory.path}/vaga_screenshot.png');
+    await imagePath.writeAsBytes(image);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Imagem salva em: ${imagePath.path}")),
+    );
+  }
+
+  void _showOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.save),
+                title: Text("Salvar Imagem"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _captureAndSave();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.share),
+                title: Text("Compartilhar"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _captureAndShare();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,159 +82,169 @@ class DetalhesVagaScreen extends StatelessWidget {
       title: 'Detalhes da Vaga',
       body: Stack(
         children: [
-          // Fundo com marca d'água "@povo_ninja"
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.08,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 20,
-                    runSpacing: 20,
-                    children: List.generate(
-                      20,
-                      (index) => Text(
-                        "@povo_ninja",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
+          Screenshot(
+            controller: screenshotController,
+            child: Stack(
+              children: [
+                // Fundo com marca d'água "@povo_ninja"
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.08,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 20,
+                          runSpacing: 20,
+                          children: List.generate(
+                            20,
+                            (index) => Text(
+                              "@povo_ninja",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade900,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // Conteúdo principal
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CustomHeader(
+                          cidade:
+                              widget.data['cidade'] ?? 'LOCAL NÃO INFORMADO'),
+                      SizedBox(height: 20),
+
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          children: [
+                            Text(
+                              (widget.data['empresa'] ??
+                                          "Empresa não informada")
+                                      .toUpperCase() +
+                                  " CONTRATA:",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              widget.data['titulo'] ?? "Título não informado",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "REQUISITOS:",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              widget.data['requisitos'] ??
+                                  "Nenhum requisito informado",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "Interessados enviar currículo via WhatsApp:",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              widget.data['contato'] ??
+                                  "Contato não disponível",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.blueAccent),
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              widget.data['descricao'] ??
+                                  "Descrição não informada",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            SizedBox(height: 12),
+                          ],
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                      SizedBox(height: 20),
+
+                      // Redes Sociais e Patrocinador
+                      Container(
+                        color: Colors.blue.shade700,
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.asset("assets/povo_ninja.jpg",
+                                  width: 75),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "SIGA NOSSAS REDES SOCIAIS:",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                    icon: FaIcon(FontAwesomeIcons.instagram,
+                                        color: Colors.white),
+                                    onPressed: () {}),
+                                IconButton(
+                                    icon: FaIcon(FontAwesomeIcons.facebook,
+                                        color: Colors.white),
+                                    onPressed: () {}),
+                                IconButton(
+                                    icon: FaIcon(FontAwesomeIcons.whatsapp,
+                                        color: Colors.white),
+                                    onPressed: () {}),
+                                IconButton(
+                                    icon: FaIcon(FontAwesomeIcons.telegram,
+                                        color: Colors.white),
+                                    onPressed: () {}),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        "PATROCINADOR OFICIAL:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Image.asset("assets/smartwork_logo.png", width: 150),
+                      SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-
-          // Conteúdo principal
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Cabeçalho estilizado
-                CustomHeader(cidade: data['cidade'] ?? 'LOCAL NÃO INFORMADO'),
-                SizedBox(height: 20),
-
-                // Informações da vaga
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      Text(
-                        (data['empresa'] ?? "Empresa não informada")
-                                .toUpperCase() +
-                            " CONTRATA:",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        data['titulo'] ?? "Título não informado",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      SizedBox(height: 10),
-                      Text(
-                        "REQUISITOS:",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        data['requisitos'] ?? "Nenhum requisito informado",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      SizedBox(height: 10),
-
-                      // Contato
-                      Text(
-                        "Interessados enviar currículo via WhatsApp:",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        data['contato'] ?? "Contato não disponível",
-                        textAlign: TextAlign.center,
-                        style:
-                            TextStyle(fontSize: 16, color: Colors.blueAccent),
-                      ),
-                      SizedBox(height: 12),
-
-                      // Descrição
-                      Text(
-                        data['descricao'] ?? "Descrição não informada",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      Text('debug 14'),
-                      SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-
-                // Redes Sociais e Patrocinador
-                Container(
-                  color: Colors.blue.shade700,
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 5),
-                        ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.asset("assets/povo_ninja.jpg", width: 75),
-                        ),
-                      SizedBox(height: 10),
-                      Text(
-                        "SIGA NOSSAS REDES SOCIAIS:",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 3),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            icon: FaIcon(FontAwesomeIcons.instagram,
-                                color: Colors.white),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: FaIcon(FontAwesomeIcons.facebook,
-                                color: Colors.white),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: FaIcon(FontAwesomeIcons.whatsapp,
-                                color: Colors.white),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: FaIcon(FontAwesomeIcons.telegram,
-                                color: Colors.white),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "PATROCINADOR OFICIAL:",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 5),
-                Image.asset("assets/smartwork_logo.png", width: 150),
-                SizedBox(height: 20),
-              ],
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+              onPressed: _showOptions,
+              backgroundColor: Colors.purple.shade200,
+              child: Icon(Icons.camera_alt, color: Colors.white),
             ),
           ),
         ],
@@ -185,7 +264,6 @@ class CustomHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Camada azul-claro (fundo)
         Positioned(
           bottom: 0,
           left: 0,
@@ -198,8 +276,6 @@ class CustomHeader extends StatelessWidget {
             ),
           ),
         ),
-
-        // Camada azul-escuro principal
         ClipPath(
           clipper: DarkBlueClipper(),
           child: Container(
@@ -212,10 +288,9 @@ class CustomHeader extends StatelessWidget {
               "OPORTUNIDADE EM ${cidade.toUpperCase()} - PR",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
           ),
         ),
@@ -251,19 +326,13 @@ class LightBlueClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     Path path = Path();
     path.moveTo(0, size.height - 3);
-
-    // Ajuste na primeira curva para manter suavidade
     path.quadraticBezierTo(size.width * 0, size.height - 130, size.width * 0.55,
         size.height - 130);
-
-    // Ajuste na segunda curva para garantir fluidez
     path.quadraticBezierTo(
         size.width * 0.2, size.height + 10, size.width, size.height - 100);
-
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
     path.close();
-
     return path;
   }
 
